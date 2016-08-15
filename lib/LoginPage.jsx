@@ -37,7 +37,7 @@ export default class LoginPage extends Component {
     render() {
         return (
             <div>
-                <h1>Welcome to TEST Steem DNS. The online manager for your blockchain-based domain.</h1>
+                <h1>Welcome to Steem DNS. The online manager for your blockchain-based domain.</h1>
                 <form onSubmit={this.login.bind(this)}>
                     <label htmlFor="username">Username</label>
                     <input type="text" onChange={this.onUsernameChange} /><br/>
