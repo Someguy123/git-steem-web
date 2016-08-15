@@ -185,6 +185,11 @@ export default class DNSManager extends Component {
         });
     }
 
+    logout() {
+        localStorage.clear();
+        window.location.reload(true);
+    }
+
     render() {
 
         let Records = this.state.records.map((r, idx) => (
@@ -198,7 +203,7 @@ export default class DNSManager extends Component {
         ));
         return (
             <div>
-                <h1>Logged in as @{this.props.user.name}</h1>
+                <h1>Logged in as @{this.props.user.name} <a style={{float: 'right'}} href="#" onClick={this.logout}>Logout</a></h1>
                 <hr/>
                 <h2>Record Editor</h2>
                 <table>
