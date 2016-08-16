@@ -41,7 +41,7 @@ export default class LoginPage extends Component {
                 <form className="full-width-forms" onSubmit={this.login.bind(this)}>
                     <label htmlFor="username">Username</label>
                     <input type="text" onChange={this.onUsernameChange} /><br/>
-                    <label htmlFor="password">Active Key (or master password) </label>
+                    <label htmlFor="password">Active Private Key (or master password) </label>
                     <input type="password" onChange={this.onPasswordChange} />
                     <hr/>
                     <button className="btn">Login</button>
