@@ -95,7 +95,7 @@ class App extends Component {
                                 return;                            
                             }
                         } catch(e) {
-                            console.error('error trying key. moving to pass');
+                            console.warn('error trying key. moving to pass');
                         }
 
                         // now try password

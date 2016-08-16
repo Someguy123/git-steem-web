@@ -266,8 +266,27 @@ export default class DNSManager extends Component {
                 </table>
                 <button className="btn full solid green" onClick={this.save}>Save Records Now</button>
                 <hr/>
+                
                 <h2>Help</h2>
-                <p>Check out the original posts <a href="https://steemit.com/steemit/@someguy123/steem-dns-your-username-dot-steem-dns-on-the-blockchain" target="_BLANK">HERE</a> and <a href="#" target="_BLANK">HERE</a></p>
+                <p>
+                    Check out the original posts&nbsp;
+                    <a href="https://steemit.com/steemit/@someguy123/steem-dns-your-username-dot-steem-dns-on-the-blockchain" target="_BLANK">HERE</a>&nbsp;
+                    and <a href="#" target="_BLANK">HERE</a>.
+                </p>
+                <p>
+                    Be aware that subdomain refers to the domain prefixing your domain. A subdomain of <strong>@</strong> refers to <span>{this.props.user.name}</span>.steem 
+                    while a subdomain of <strong>testing</strong> would refer to testing.<span>{this.props.user.name}</span>.steem 
+                </p>
+
+                <h3><strong>Example Records</strong></h3>
+                <div className="col-1-2">
+                    <p>Type: A<br/> Subdomain: @<br/> Value: 127.0.0.1<br/> Result: <span>{this.props.user.name}</span>.steem pointing to 127.0.0.1</p>
+
+                </div>
+                <div className="col-1-2">
+                    <p>Type: CNAME<br/> Subdomain: test<br/> Value: someguy123.com<br/> Result: test.<span>{this.props.user.name}</span>.steem pointing to the same IP as the domain someguy123.com</p>
+                </div>
+
                 <h3><strong>How to view?</strong></h3>
                 <p>If you have your computers DNS pointed at our server, you can visit <a href={`http://${this.props.user.name}.steem`}>{`http://${this.props.user.name}.steem`}</a></p>
                 <p>If not, you can use our proxy domain (shorter ones coming soon) at <a href={`http://${this.props.user.name}.user.steem.network`}>{`http://${this.props.user.name}.user.steem.network`}</a> </p>

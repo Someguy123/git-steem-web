@@ -47,7 +47,10 @@ export default class LoginPage extends Component {
                     <button className="btn">Login</button>
                 </form>
 
-                <small>Operated by @Someguy123</small>
+                <h3><strong>Problems?</strong></h3>
+                <p>Make sure you're using either your <strong>MASTER PASSWORD</strong>, or the <strong>owner/active PRIVATE key</strong> (NOT THE PUBLIC KEY, AND NO, YOUR POSTING/MEMO KEY WILL NOT WORK EITHER)</p>
+                <p>Some people have reported problems with Firefox, if you keep having problems, try it in Google Chrome, or Microsoft Edge before reporting an issue.</p>
+                <p>We do NOT store your password or key in any form whatsoever. All operations happen in your browser, and are not logged or monitored by us.</p>
             </div>
         )
     }
