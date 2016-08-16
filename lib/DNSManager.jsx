@@ -28,10 +28,21 @@ export default class DNSManager extends Component {
         }
         // debugging
         this.send = (e) => {
-            var tr = new window.steemJS.TransactionBuilder();
-            tr.add_type_operation("account_update", JSON.parse(this.state.data));
-            tr.process_transaction(this.props.user, null, true);
-            window.temptx = tr;
+            
+            let options = steemJS.steemRPC.Client.get()['options'];
+            // reset and reconnect socket because it's unreliable...
+
+            var Client = window.steemJS.steemRPC.Client;
+            console.log(Client.close())
+            var Api = Client.reset(options);
+            console.log(Api);
+            Api.initPromise.then(response => {
+                console.log("Api ready:", response);
+                var tr = new window.steemJS.TransactionBuilder();
+                tr.add_type_operation("account_update", JSON.parse(this.state.data));
+                tr.process_transaction(this.props.user, null, true);
+                window.temptx = tr;
+            });
         }
         this.onEditorChange = (e) => {
             var tg = e.target;
@@ -104,9 +115,18 @@ export default class DNSManager extends Component {
             original_userjson['dns']['records'] = records;
             
             try {
+
+                // let options = steemJS.steemRPC.Client.get()['options'];
+                // var Api = window.steemJS.steemRPC.get();
+                // console.log(Client.close())
+                // var Api = Client.reset(options);
+                // console.log(Api);
+                // wait 2 seconds because this never works properly
+                // Api.initPromise.then(response => {
+
                 var tr = new window.steemJS.TransactionBuilder();
-                let new_data =  {
-                    account: this.props.user.name, 
+                let new_data = {
+                    account: this.props.user.name,
                     memo_key: this.props.account.memo_key,
                     json_metadata: JSON.stringify(original_userjson)
                 }
@@ -117,13 +137,15 @@ export default class DNSManager extends Component {
                 }, (err) => {
                     console.error('uh oh error: ', err);
                 }).catch((e) => {
-                    console.error('uh oh CATCH error: ', err);                    
+                    console.error('uh oh CATCH error: ', err);
                 });
                 document.getElementById('loading-overlay').style.display = "none";
-                notie.alert(1, 'Your account was updated. Changes should be live within 60 seconds.', 3);                    
+                notie.alert(1, 'Your account was updated. Changes should be live within 60 seconds.', 3);
+                // });
                 
-            } catch(e) {
-                document.getElementById('loading-overlay').style.display = "none";                
+
+            } catch (e) {
+                document.getElementById('loading-overlay').style.display = "none";
                 notie.alert(3, 'There was an error building the transaction to update your JSON Metadata', 5);
                 console.error('SteemDNS Transaction Error: ', e);
             }

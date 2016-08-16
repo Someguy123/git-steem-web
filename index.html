@@ -6,29 +6,29 @@
     <meta name="author" content="Someguy123" />
     <title>SteemDNS</title>
     <style type="text/css">
-    /*body{
-        font-family: arial;
-    }*/
-    .tbrecord td {
-        text-align: center;
-    }
-    #loading-overlay {
-        display: none; 
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.4);
-    }
-    #loading-overlay .load {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-    }
+        .tbrecord td {
+            text-align: center;
+        }
+        
+        #loading-overlay {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        #loading-overlay .load {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
     </style>
 
     <link rel="stylesheet" href="https://cdn.rawgit.com/doximity/vital/v1.2.0/dist/css/vital.min.css">
     <link rel="stylesheet" href="https://cdn.rawgit.com/jaredreich/notie/master/dist/notie.css">
 </head>
+
 <body>
     <noscript>Please turn on JS!</noscript>
     <div id="loading-overlay">
@@ -39,7 +39,21 @@
             <div id="container">Loading JS...</div>
         </div>
     </div>
+    <div class="row">
+        <div class="section">
+            <div class="footer">
+                <p>
+                    This site is ran by <a href="https://steemit.com/@someguy123" target="_BLANK">@Someguy123</a>
+                    <span style="float:right">
+                        <a href="https://github.com/someguy123/steemdns-web" target="_BLANK">Open Source (Github)</a>
+                    </span>
+                </p>
+            </div>
+
+        </div>
+    </div>
     <script src="/js/steemjs-lib.min.js"></script>
     <script src="/js/production.js"></script>
 </body>
+
 </html>

@@ -38,12 +38,13 @@ export default class LoginPage extends Component {
         return (
             <div>
                 <h1>Welcome to Steem DNS. The online manager for your blockchain-based domain.</h1>
-                <form onSubmit={this.login.bind(this)}>
+                <form className="full-width-forms" onSubmit={this.login.bind(this)}>
                     <label htmlFor="username">Username</label>
                     <input type="text" onChange={this.onUsernameChange} /><br/>
                     <label htmlFor="password">Active Key (or master password) </label>
                     <input type="password" onChange={this.onPasswordChange} />
-                    <button>Login</button>
+                    <hr/>
+                    <button className="btn">Login</button>
                 </form>
 
                 <small>Operated by @Someguy123</small>

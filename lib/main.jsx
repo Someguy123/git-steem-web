@@ -23,6 +23,17 @@ class App extends Component {
             rawAccount: {}
         };
 
+
+        // Dirty temporary fix for https://github.com/svk31/steemjs-lib/issues/2
+        // Pulse the websocket every 20 seconds for block number 1, just to make
+        // sure the websocket doesn't disconnect.
+        this.nop = () => {
+            var Api = window.steemJS.steemRPC.Client.get(options, true);            
+            Api.initPromise.then(function(res) {
+                Api.database_api().exec("get_block", [1]).then(function(res) {});
+            });
+        }
+        setInterval(this.nop, 20000);
         this.login = (username,password) => {
             document.getElementById('loading-overlay').style.display = "block";
             var user = new window.steemJS.Login();
