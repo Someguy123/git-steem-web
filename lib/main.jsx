@@ -87,12 +87,22 @@ class App extends Component {
                         var with_pass = JSON.parse(JSON.stringify(login_data));
                         with_pass['password'] = password;
                         with_key['privateKey'] = password;
+                        // first try owner/active key
+                        try {
+                            let success_key = user.checkKeys(with_key);
+                            if(success_key) {
+                                _login(username, password, user);
+                                return;                            
+                            }
+                        } catch(e) {
+                            console.error('error trying key. moving to pass');
+                        }
 
-                        let success_key = user.checkKeys(with_key);
-                        let success_pass = user.checkKeys(with_pass);
+                        // now try password
+                        let success_pass = user.checkKeys(with_pass);                        
 
-                        if(success_key || success_pass){ // we're in.
-                            _login(username, password, user);
+                        if(success_pass){ // we're in.
+                            _login(username, password, user);                        
                             return;
                         }
                         // user entered the wrong credentials.
