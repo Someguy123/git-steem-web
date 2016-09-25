@@ -1,6 +1,6 @@
 About
 =====
-This is a Web UI for the SteemDNS standard. It authenticates using [SVK's SteemJS](https://github.com/svk31/steemjs-lib)
+This is a Web UI for the Git-Steem standard. It authenticates using [SVK's SteemJS](https://github.com/svk31/steemjs-lib)
 and is completely in-browser.
 
 This Web UI was created by [@Someguy123](https://steemit.com/@someguy123), and published on Github under the 
@@ -20,8 +20,8 @@ that the code was taken from here.
 Install
 =====
 
-    git clone https://github.com/Someguy123/steemdns-web.git
-    cd example-webpack-issue
+    git clone https://github.com/Someguy123/git-steem-web.git
+    cd git-steem-web
     # use node 6, best to use NVM
     nvm use v6
 

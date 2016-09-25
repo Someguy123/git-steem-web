@@ -37,7 +37,7 @@ export default class LoginPage extends Component {
     render() {
         return (
             <div>
-                <h1>Welcome to Steem DNS. The online manager for your blockchain-based domain.</h1>
+                <h1>Welcome to Git STEEM. The online manager for your blockchain-based git repositories.</h1>
                 <form className="full-width-forms" onSubmit={this.login.bind(this)}>
                     <label htmlFor="username">Username</label>
                     <input type="text" onChange={this.onUsernameChange} /><br/>
@@ -48,7 +48,7 @@ export default class LoginPage extends Component {
                 </form>
 
                 <h3><strong>Problems?</strong></h3>
-                <p>Make sure you're using either your <strong>MASTER PASSWORD</strong>, or the <strong>owner/active PRIVATE key</strong> (NOT THE PUBLIC KEY, AND NO, YOUR POSTING/MEMO KEY WILL NOT WORK EITHER)</p>
+                <p>Make sure you're using either your <strong>MASTER PASSWORD</strong>, or the <strong>active PRIVATE key</strong> (NOT THE PUBLIC KEY, AND NO, YOUR POSTING/MEMO KEY WILL NOT WORK EITHER)</p>
                 <p>Some people have reported problems with Firefox, if you keep having problems, try it in Google Chrome, or Microsoft Edge before reporting an issue.</p>
                 <p>We do NOT store your password or key in any form whatsoever. All operations happen in your browser, and are not logged or monitored by us.</p>
             </div>

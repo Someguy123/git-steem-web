@@ -9,16 +9,25 @@ Array.prototype.remove = function(from, to) {
   return this.push.apply(this, rest);
 };
 
-export default class DNSManager extends Component {
+Object.map = function(o, f, ctx) {
+    ctx = ctx || this;
+    var result = {};
+    Object.keys(o).forEach(function(k) {
+        result[k] = f.call(ctx, o[k], k, o); 
+    });
+    return result;
+}
+
+export default class GitManager extends Component {
     constructor() {
         super();
         this.state = {
-            records: [], 
+            records: {},
             currentEditor: {
-                type: 'A',
-                subdomain: '',
+                type: 'https',
+                name: '',
                 value: '',
-                priority: '',
+                projecturl: ''
             }
         };
         // debugging
@@ -58,41 +67,39 @@ export default class DNSManager extends Component {
         }
         this.addRecord = (e) => {
             let items = this.state.currentEditor;
-            var record = [];
-            record.push(items.subdomain);
-            record.push(items.type);
-            record.push(items.value);
-            try {
-                if(items.type == 'MX') record.push(parseInt(items.priority));
-            } catch(e) {
-                notie.alert(3, 'Invalid MX priority. Must be numeric', 3);
-                return;
-            }
-
-            if (items.type == 'A' && !this.isIp(items.value)) {
-                notie.alert(3, 'A Records must be set to a valid IP address', 3);
-                return false;
-            }            
-            if (items.subdomain == '') {
-                notie.alert(2, 'Warning: Subdomain must be filled in. For the root domain enter @ as the subdomain.', 3);
-                return false;
-            } 
-
-            var dupe_check = this.state.records.filter((r) => JSON.stringify(r) == JSON.stringify(record));
-            if (dupe_check.length > 0) {
-                notie.alert(3, 'Error: You already have a record like that, which is exactly the same!', 3);
+         
+            if (items.name == '') {
+                notie.alert(2, 'Warning: Fill out the repo name!', 3);
                 return false;
             }
+            if (items.value == '') {
+                notie.alert(2, 'Warning: Fill out the repo value!', 3);
+                return false;
+            }
+            if(['https','ssh'].indexOf(items.type) == -1) {
+                notie.alert(2, 'Warning: Invalid type', 3);
+                return false;
+            }
+
+            // var dupe_check = this.state.records.filter((r) => JSON.stringify(r) == JSON.stringify(record));
+            // if (dupe_check.length > 0) {
+                // notie.alert(3, 'Error: You already have a record like that, which is exactly the same!', 3);
+                // return false;
+            // }
+            var {name,type} = items;
             this.setState((prevState) => {
                 let records = prevState.records;
-                records.push(record)
+                if(!(name in records)) {
+                    records[name] = {}
+                }
+                records[name][type] = items;
                 return {
                     records, 
                     currentEditor: {
-                        type: 'A',
-                        subdomain: '',
+                        type: 'https',
+                        name: '',
                         value: '',
-                        priority: '',
+                        projecturl: '',
                     }
                 };
             });
@@ -100,7 +107,7 @@ export default class DNSManager extends Component {
         this.save = (e) => {
             document.getElementById('loading-overlay').style.display = "block";
             // just make sure they're sane before publishing...
-            var records = this.state.records.filter(this.validateRecord.bind(this));
+            // var records = this.state.records.filter(this.validateRecord.bind(this));
             var original_userjson;
             try {
                 original_userjson = JSON.parse(this.props.account.json_metadata);
@@ -109,10 +116,9 @@ export default class DNSManager extends Component {
                 original_userjson = {};
             }
 
-            if(!('dns' in original_userjson)) original_userjson['dns'] = {};
-            if(!('records' in original_userjson['dns'])) original_userjson['dns']['records'] = [];
+            if(!('git' in original_userjson)) original_userjson['git'] = {};
 
-            original_userjson['dns']['records'] = records;
+            original_userjson['git'] = this.state.records;
             
             try {
 
@@ -147,7 +153,7 @@ export default class DNSManager extends Component {
             } catch (e) {
                 document.getElementById('loading-overlay').style.display = "none";
                 notie.alert(3, 'There was an error building the transaction to update your JSON Metadata', 5);
-                console.error('SteemDNS Transaction Error: ', e);
+                console.error('Git-steem Transaction Error: ', e);
             }
         }
         this.loadRecords.bind(this);
@@ -160,13 +166,6 @@ export default class DNSManager extends Component {
     }
 
     validateRecord(record) {
-        // Is it an array?
-        if (!Array.isArray(record)) return false;
-        // Does it have 3 or 4 entries?
-        if (record.length < 3 || record.length > 4) return false;
-        // If it's an A record, is the value an IP?
-        if (record[0] == 'A' && !this.isIp(record[2])) return false;
-
         // Passed all tests
         return true;
     }
@@ -179,9 +178,9 @@ export default class DNSManager extends Component {
             notie.alert(3, 'Invalid JSON in your metadata. Please correct your JSON via cli_wallet, or it will be ERASED when you update your records.', 10)
         }
         console.log('Loading records...');
-        if('dns' in data && 'records' in data['dns']) {
+        if('git' in data) {
             console.log('Found records. Cleaning.');        
-            var clean_records = data['dns']['records'].filter(this.validateRecord.bind(this));
+            var clean_records = data['git'];
             console.log('Clean records are: ', clean_records);                    
             this.setState({records: clean_records});
         }
@@ -198,11 +197,10 @@ export default class DNSManager extends Component {
 
     }
 
-    deleteRecord(idx) {
-        console.log(idx);
+    deleteRecord(r_name, r_type) {
         this.setState((prevState) => {
             var records = prevState.records;
-            records.remove(parseInt(idx));
+            delete records[r_name][r_type];
             return {records};
         });
     }
@@ -214,15 +212,22 @@ export default class DNSManager extends Component {
 
     render() {
 
-        let Records = this.state.records.map((r, idx) => (
-            <tr className="tbrecord" key={idx} >
-                <td>{r[0]}</td>
-                <td>{r[1]}</td>
-                <td>{r[2]}</td>
-                <td>{r.length > 3 ? r[3] : 'N/A'}</td>
-                <td><button className="btn full solid red" onClick={this.deleteRecord.bind(this, idx)}>-</button></td>
-            </tr>
-        ));
+        let Records = [];
+        
+        for(var r_name in this.state.records) {
+            for(var r_type in this.state.records[r_name]) {
+                var r = this.state.records[r_name][r_type];
+                Records.push(<tr className="tbrecord" key={r_name + r_type} >
+                    <td>{r_name}</td>
+                    <td>{r_type}</td>
+                    <td>{r.value}</td>
+                    <td>{'projecturl' in r ? r.projecturl : ''}</td>
+                    <td><button className="btn full solid red" onClick={this.deleteRecord.bind(this, r_name, r_type)}>-</button></td>
+                </tr>)
+            }
+        };
+
+
         return (
             <div>
                 <h1>Logged in as @{this.props.user.name} <a style={{float: 'right'}} href="#" onClick={this.logout}>Logout</a></h1>
@@ -231,10 +236,10 @@ export default class DNSManager extends Component {
                 <table>
                     <thead>
                         <tr>
-                            <th>Subdomain</th>
-                            <th>Type</th>
-                            <th>Value</th>
-                            <th>Priority (Optional, for MX) </th>
+                            <th>Repo Name</th>
+                            <th>Connection Type</th>
+                            <th>Repo URL</th>
+                            <th>Project Website or Steemit URL (optional)</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -242,21 +247,19 @@ export default class DNSManager extends Component {
                         {Records}
                         <tr>
                             <td>
-                                <input type="text" id="editor-subdomain" value={this.state.currentEditor.subdomain} onChange={this.onEditorChange} />
+                                <input type="text" id="editor-name" value={this.state.currentEditor.name} onChange={this.onEditorChange} />
                             </td>
                             <td>
                                 <select name="editor-type" id="editor-type" value={this.state.currentEditor.type} onChange={this.onEditorChange} >
-                                    <option value="A">A</option>
-                                    <option value="CNAME">CNAME</option>
-                                    <option value="TXT">TXT</option>
-                                    <option value="MX">MX</option>
+                                    <option value="https">HTTPS (git://)</option>
+                                    <option value="ssh">SSH</option>
                                 </select>
                             </td>
                             <td>
                                 <input type="text" id="editor-value" value={this.state.currentEditor.value} onChange={this.onEditorChange} />
                             </td>
                             <td>
-                                <input type="text" id="editor-priority" value={this.state.currentEditor.priority} onChange={this.onEditorChange} />
+                                <input type="text" id="editor-projecturl" value={this.state.currentEditor.projecturl} onChange={this.onEditorChange} />
                             </td>
                             <td>
                                 <button className="btn full solid blue" onClick={this.addRecord}>+</button>
@@ -266,37 +269,6 @@ export default class DNSManager extends Component {
                 </table>
                 <button className="btn full solid green" onClick={this.save}>Save Records Now</button>
                 <hr/>
-                
-                <h2>Help</h2>
-                <p>
-                    Check out the original posts&nbsp;
-                    <a href="https://steemit.com/steemit/@someguy123/steem-dns-your-username-dot-steem-dns-on-the-blockchain" target="_BLANK">HERE</a>&nbsp;
-                    and <a href="#" target="_BLANK">HERE</a>.
-                </p>
-                <p>
-                    Be aware that subdomain refers to the domain prefixing your domain. A subdomain of <strong>@</strong> refers to <span>{this.props.user.name}</span>.steem 
-                    while a subdomain of <strong>testing</strong> would refer to testing.<span>{this.props.user.name}</span>.steem 
-                </p>
-
-                <h3><strong>Example Records</strong></h3>
-                <div className="col-1-2">
-                    <p>Type: A<br/> Subdomain: @<br/> Value: 127.0.0.1<br/> Result: <span>{this.props.user.name}</span>.steem pointing to 127.0.0.1</p>
-
-                </div>
-                <div className="col-1-2">
-                    <p>Type: CNAME<br/> Subdomain: test<br/> Value: someguy123.com<br/> Result: test.<span>{this.props.user.name}</span>.steem pointing to the same IP as the domain someguy123.com</p>
-                </div>
-
-                <h3><strong>How to view?</strong></h3>
-                <p>If you have your computers DNS pointed at our server, you can visit <a href={`http://${this.props.user.name}.steem`}>{`http://${this.props.user.name}.steem`}</a></p>
-                <p>If not, you can use our proxy domain (shorter ones coming soon) at <a href={`http://${this.props.user.name}.user.steem.network`}>{`http://${this.props.user.name}.user.steem.network`}</a> </p>
-                <h3><strong>Record Types</strong></h3>
-                <p>
-                    <strong>A</strong> - Points the (sub)domain to an IP address, such as 127.0.0.1<br/>
-                    <strong>CNAME</strong> - Aliases the domain to a different domain. Be aware that the other server must have appropriate host settings or this won't work<br/>
-                    <strong>TXT</strong> - Used for putting raw text into a domain record, often for verification for SSL or Search Engines<br/>
-                    <strong>MX</strong> - Used for emails. This obviously will not actually work unless .steem becomes a real TLD<br/>
-                </p>
             </div>
         )
     }

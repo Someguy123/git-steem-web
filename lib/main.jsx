@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import DNSManager from './DNSManager';
+import GitManager from './GitManager';
 import LoginPage from './LoginPage';
 import notie from 'notie';
 
@@ -123,7 +123,7 @@ class App extends Component {
         return (
             <div>
                 {this.state.loggedIn
-                    ? <DNSManager username={this.state.username} user={this.state.user} account={this.state.rawAccount} />
+                    ? <GitManager username={this.state.username} user={this.state.user} account={this.state.rawAccount} />
                     : <LoginPage login={this.login} />
                 }
             </div>
